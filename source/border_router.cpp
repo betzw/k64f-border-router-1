@@ -22,7 +22,11 @@
 #endif
 #include "nsdynmemLIB.h"
 #include "nanostack-border-router/borderrouter_tasklet.h"
+#if TARGET_NUCLEO_F429ZI
+#include "sal-nanostack-driver-stm32-eth/stm32_eth_nanostack_port.h"
+#else
 #include "sal-nanostack-driver-k64f-eth/k64f_eth_nanostack_port.h"
+#endif
 #include "sal-stack-nanostack-slip/Slip.h"
 
 #if YOTTA_CFG_K64F_BORDER_ROUTER_DEBUG_TRACES==1
@@ -90,6 +94,10 @@ static void trace_printer(const char *str)
 void backhaul_driver_init(void (*backhaul_driver_status_cb)(uint8_t, int8_t))
 {
     const char *driver;
+
+#if TARGET_NUCLEO_F429ZI
+#undef ETH
+#endif
 
 #ifndef MBED_CONF_RTOS_PRESENT
     driver = STR(YOTTA_CFG_K64F_BORDER_ROUTER_BACKHAUL_DRIVER);
@@ -188,7 +196,12 @@ void app_start(int, char **)
 #else
     led_ticker.attach_us(toggle_led1, 500000);
 #endif
+
+#if TARGET_NUCLEO_F429ZI
+    tr_info("Starting NUCLEO_F429ZI border router...");
+#else
     tr_info("Starting K64F border router...");
+#endif
     border_router_start();
 }
 
